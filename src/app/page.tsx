@@ -11,10 +11,12 @@ export default function Home() {
   const [lastDelay, setLastDelay] = useState(0);
 
   const findTrain = async () => {
+    const startOfDay = moment().startOf('day');
+    const epoch = startOfDay.valueOf();
     try {
       const response = await fetch(`https://api.transportam.cat/adif/train/${trainId}?all_control_points=true`);
       const data = await response.json();
-      const lastStop = data[0]?.passthroughSteps?.findLast((x: { arrivalPassthroughStepSides: { timeType: string; }; }) => x.arrivalPassthroughStepSides?.timeType === "AUDITED");
+      const lastStop = data?.find((x: { commercialPathInfo: { commercialPathKey: { commercialCirculationKey: { launchingDate: number; }; }; }; }) => x.commercialPathInfo.commercialPathKey.commercialCirculationKey.launchingDate === epoch)?.passthroughSteps?.findLast((x: { arrivalPassthroughStepSides: { timeType: string; }; }) => x.arrivalPassthroughStepSides?.timeType === "AUDITED");
       if(lastStop !== null) {
         const lastStopCode = lastStop?.stationCode as keyof typeof stations;
 
