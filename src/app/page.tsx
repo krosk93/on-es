@@ -3,12 +3,14 @@
 import { useState } from "react";
 import stations from './stations.json';
 import moment from 'moment-timezone';
+import { useIsOnline } from "@/hooks/is-online";
 
 export default function Home() {
   const [trainId, setTrainId] = useState("");
   const [lastStop, setLastStop] = useState("");
   const [lastTime, setLastTime] = useState("");
   const [lastDelay, setLastDelay] = useState(0);
+  const { isOffline } = useIsOnline();
 
   const findTrain = async () => {
     const startOfDay = moment().startOf('day');
@@ -39,8 +41,12 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <p>Introdueix el codi del tren de l&apos;app d&apos;ADIF:</p>
-        <input type="text" onChange={(e) => setTrainId(e.target.value)} className="border" />
-        <button onClick={(e) => {findTrain(); e.preventDefault()}} className="border">Buscar</button>
+        <input type="text" onChange={(e) => setTrainId(e.target.value)} className="border dark:text-white" />
+        <button type="button" className="px-8 py-3 text-white bg-black rounded focus:outline-none disabled:text-gray-500"
+        disabled={isOffline} onClick={(e) => {findTrain(); e.preventDefault()}}>
+            Buscar
+        </button>
+        <p>{ isOffline ? "No tens connexió" : " " }</p>
         <p>Ultima estació: { lastStop }</p>
         <p>Hora de pas: { lastTime }</p>
         <p>Retard: { lastDelay } minuts</p>
